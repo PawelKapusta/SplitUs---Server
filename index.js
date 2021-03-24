@@ -29,7 +29,16 @@ db.connect((error) => {
 app.get('/', (req, res) => {
   res.send('<h1>Server side</h1>');
 });
-
+app.get('/users',  (req,res) => {
+  db.query("SELECT * FROM users;", (error, rows, fields) => {
+    if (error) {
+      console.log("Error in getting users query");
+    } else {
+      res.send(rows);
+      console.log("Successful getting users query");
+    }
+  })
+})
 
 app.listen(process.env.PORT || 5000, () => {
   console.log('Running on port 5000');
