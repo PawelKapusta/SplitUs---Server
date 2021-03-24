@@ -58,7 +58,7 @@ app.get('/users', (req, res) => {
 });
 
 app.listen(process.env.PORT || 5000, () => {
-  console.log('Running on port 5000');
+  console.log(`Running on port ${process.env.PORT} or 5000`);
 });
 
 app.use(bodyParser.json({ limit: '30mb', extended: true }));
