@@ -44,7 +44,7 @@ function handleDisconnect() {
 handleDisconnect();
 
 app.get('/', (req, res) => {
-  res.send('<h1>Server side</h1>');
+  res.send('<h1>Server side :)</h1>');
 });
 app.get('/users', (req, res) => {
   connection.query('SELECT * FROM users;', (error, rows, fields) => {
