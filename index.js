@@ -6,6 +6,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const mysql = require('mysql');
 const app = express();
+const cors = require('cors')
 require('dotenv').config();
 
 app.use(cors());
