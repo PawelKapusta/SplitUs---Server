@@ -37,3 +37,4 @@ export const Comments = db.define(
     timestamps: false,
   },
 );
+console.log('test')
