@@ -11,5 +11,5 @@ usersBillsRouter.get('/usersBills', (req, res) => {
         usersBills: usersBills,
       });
     })
-    .catch((err) => console.log('Error when fetching all users: ', err));
+    .catch((err) => console.log('Error when fetching all usersBills: ', err));
 });

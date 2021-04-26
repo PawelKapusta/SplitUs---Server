@@ -40,6 +40,16 @@ export const Users = db.define(
       type: Sequelize.STRING(1024),
       isUrl: true,
     },
+    isAdmin: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      default: false,
+    },
+    isBlocked: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      default: false,
+    },
   },
   {
     timestamps: false,

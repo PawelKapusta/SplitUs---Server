@@ -2,29 +2,71 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "My User Project CRUD",
-    "description": "My User Project Application API",
+    "title": "My SplitUs Project CRUD",
+    "description": "My SplitUs Project Application API",
+    "contact": {
+      "email": "pawel.kapusta@student.uj.edu.pl"
+    },
     "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "localhost:8000",
+  "host": "localhost:5000",
   "basePath": "/",
   "tags": [
     {
       "name": "Users",
-      "description": "API for users in the system"
+      "description": "Everything about Users in system"
+    },
+    {
+      "name": "Bills",
+      "description": "All bills in system"
+    },
+    {
+      "name": "UsersBills",
+      "description": "Relations between users and bills"
+    },
+    {
+      "name": "Groups",
+      "description": "All groups in system"
+    },
+    {
+      "name": "GroupsUsers",
+      "description": "Relations between groups and users"
+    },
+    {
+      "name": "Comments",
+      "description": "All comments in system"
+    },
+    {
+      "name": "Questions FAQ",
+      "description": "All Questions FAQ in system"
     }
   ],
   "schemes": ["http"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
-    "/addUser": {
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get all users in system",
+
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            }
+          }
+        }
+      }
+    },
+    "/register": {
       "post": {
         "tags": ["Users"],
-        "description": "Create new user in system",
+        "summary": "Create new user in system",
         "parameters": [
           {
             "name": "user",
@@ -46,21 +88,7 @@
         }
       }
     },
-    "/users": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Get all users in system",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Users"
-            }
-          }
-        }
-      }
-    },
-    "/user/{id}": {
+    "/users/{id}": {
       "parameters": [
         {
           "name": "id",

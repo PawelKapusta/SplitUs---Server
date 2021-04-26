@@ -3,8 +3,8 @@ const require = createRequire(import.meta.url);
 const { Sequelize } = require('sequelize');
 import { db } from '../dbconfig.js';
 
-export const Comments = db.define(
-  'comments',
+export const GroupsUsers = db.define(
+  'groupsusers',
   {
     ID: {
       type: Sequelize.INTEGER,
@@ -12,11 +12,11 @@ export const Comments = db.define(
       primaryKey: true,
       allowNull: false,
     },
-    BillId: {
+    GroupId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'bills',
+        model: 'groups',
         key: 'ID',
       },
     },
@@ -27,10 +27,6 @@ export const Comments = db.define(
         model: 'users',
         key: 'ID',
       },
-    },
-    Content: {
-      type: Sequelize.STRING,
-      allowNull: false,
     },
   },
   {

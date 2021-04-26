@@ -125,3 +125,5 @@ sketch
 .env.local
 .env.staging
 client
+swagger2.json
+swagger.json

@@ -11,5 +11,5 @@ commentsRouter.get('/comments', (req, res) => {
         comments: comments,
       });
     })
-    .catch((err) => console.log('Error when fetching all users: ', err));
+    .catch((err) => console.log('Error when fetching all comments: ', err));
 });

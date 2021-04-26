@@ -11,5 +11,5 @@ groupsRouter.get('/groups', (req, res) => {
         groups: groups,
       });
     })
-    .catch((err) => console.log('Error when fetching all users: ', err));
+    .catch((err) => console.log('Error when fetching all groups: ', err));
 });
