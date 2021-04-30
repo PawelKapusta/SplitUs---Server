@@ -29,7 +29,6 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
-app.use(bodyParser.json());
 app.use(morgan('dev'));
 app.use(helmet());
 
@@ -91,6 +90,8 @@ app.post('/groupsUsers', groupsUsersRouter);
 app.delete('/groupsUsers/:id', groupsUsersRouter);
 
 app.get('/usersBills', usersBillsRouter);
+app.post('/usersBills', usersBillsRouter);
+app.delete('/usersBills/:id', usersBillsRouter);
 
 app.get('/questionsFaq', questionsFaqRouter);
 app.post('/questionsFaq', questionsFaqRouter);

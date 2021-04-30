@@ -144,14 +144,14 @@ usersRouter.post('/register', async (req, res) => {
       res.status(500).json({ error: 'Cannot register user at the moment!' });
     });
     if (savedUser) res.json({ message: 'Thanks for registering' });
-    res.setHeader('Content-Type', 'application/json'); //?
-    res.writeHead(200, { 'Content-Type': 'application/json' }); //?
-    res.write(JSON.stringify(user)); //?
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.write(JSON.stringify(user));
     res.status(200).send({
       success: 'true',
     });
     res.redirect('/login');
-    res.end(); //?
+    res.end();
     return res.json(user);
   } catch (error) {
     res.redirect('/register');
