@@ -25,7 +25,7 @@ groupsUsersRouter.post(
   '/groupsUsers',
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
-    const { groupId, usersIdArray } = req.body;
+    const { GroupId, usersIdArray } = req.body;
     res.setHeader('Content-Type', 'application/json');
     res.header('Content-Type', 'application/json');
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -33,11 +33,11 @@ groupsUsersRouter.post(
       for (let i = 0; i < usersIdArray.length; i++) {
         console.log('element in the array', usersIdArray[i]);
         const groupsUsers = await GroupsUsers.create({
-          GroupId: groupId,
-          UserId: parseInt(usersIdArray[i]),
+          GroupId: GroupId,
+          UserId: usersIdArray[i],
         })
           .then(function (groupsUsers) {
-            res.write(JSON.stringify(groupsUsers)); //?
+            res.write(JSON.stringify(groupsUsers));
             res.status(200).send({
               success: 'true',
               message: 'groupsUsers',
@@ -60,7 +60,7 @@ groupsUsersRouter.post(
 groupsUsersRouter.delete(
   '/groupsUsers/:id',
   passport.authenticate('jwt', { session: false }),
-  async (req, res, next) => {
+  async (req, res) => {
     const groupsUsersId = req.params.id;
     GroupsUsers.findByPk(groupsUsersId)
       .then((groupUsers) => {
@@ -74,9 +74,14 @@ groupsUsersRouter.delete(
             }),
           )
           .catch((error) =>
-            console.log('Error with destroying instance of group in database: ', error.message),
+            console.log(
+              'Error with destroying instance of groupUsers in database: ',
+              error.message,
+            ),
           );
       })
-      .catch((err) => console.log(`Error when fetching group with ID: ${groupsUsersId} `, err));
+      .catch((err) =>
+        console.log(`Error when fetching groupUsers with ID: ${groupsUsersId} `, err),
+      );
   },
 );
