@@ -3,6 +3,11 @@ import jwt from 'jsonwebtoken';
 import { Users } from '../models/users.js';
 import { createRequire } from 'module';
 import { isAdmin } from '../utils.js';
+import { Bills } from '../models/bills.js';
+import { Comments } from '../models/comments.js';
+import Sequelize from 'sequelize';
+import { UsersBills } from '../models/users_bills.js';
+import { GroupsUsers } from '../models/groups_users.js';
 
 export const usersRouter = express.Router();
 const require = createRequire(import.meta.url);
@@ -43,7 +48,7 @@ usersRouter.get(
 usersRouter.put('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { FullName, Email, Password, Phone, BirthDate, AvatarImage } = req.body;
   const userId = req.user.ID;
-  console.log('idididididid', userId);
+
   const hashedPassword = await bcrypt.hash(Password, 10);
 
   try {
@@ -93,24 +98,71 @@ usersRouter.delete(
   '/users/:id',
   passport.authenticate('jwt', { session: false }),
   isAdmin,
-  (req, res) => {
+  async (req, res) => {
     const userId = req.params.id;
-    Users.findByPk(userId)
-      .then((user) => {
-        user
-          .destroy()
-          .then(
-            res.status(200).send({
-              success: 'true',
-              message: 'user',
-              user: 'Successfully deleted',
-            }),
-          )
-          .catch((error) =>
-            console.log('Error with destroying instance of User in database: ', error.message),
-          );
-      })
-      .catch((err) => console.log(`Error when fetching user with ID: ${userId} `, err));
+
+    const allBillsToDelete = await Bills.findAll({ where: { OwnerId: userId } })
+      .then((response) => response)
+      .catch((error) =>
+        console.log(`Error when finding bills when deleting user with Id: ${userId}: `, error),
+      );
+
+    const allBillsIdToDelete = allBillsToDelete.map((bill) => bill['ID']);
+
+    const allCommentsToDelete = await Comments.findAll({
+      where: Sequelize.or({ BillId: allBillsIdToDelete }, { UserId: userId }),
+    })
+      .then((response) => response)
+      .catch((error) =>
+        console.log(`Error when finding bills when deleting user with Id: ${userId}: `, error),
+      );
+
+    const commentsIdToDelete = allCommentsToDelete.map((comment) => comment['ID']);
+
+    const allUsersBillsToDelete = await UsersBills.findAll({
+      where: Sequelize.or({ BillId: allBillsIdToDelete }, { UserId: userId }),
+    })
+      .then((response) => response)
+      .catch((error) =>
+        console.log(`Error when finding bills when deleting user with Id: ${userId}: `, error),
+      );
+
+    const usersBillsIdToDelete = allUsersBillsToDelete.map((usersBills) => usersBills['ID']);
+
+    const allGroupsUsersToDelete = await GroupsUsers.findAll({
+      where: { UserId: userId },
+    })
+      .then((response) => response)
+      .catch((error) =>
+        console.log(`Error when finding bills when deleting user with Id: ${userId}: `, error),
+      );
+
+    const groupsUsersIdToDelete = allGroupsUsersToDelete.map((usersBills) => usersBills['ID']);
+
+    const deleteAllUsersBillsPromise = UsersBills.destroy({ where: { ID: usersBillsIdToDelete } });
+
+    const deleteAllCommentsPromise = Comments.destroy({ where: { ID: commentsIdToDelete } });
+
+    const deleteAllBillsPromise = Bills.destroy({ where: { ID: allBillsIdToDelete } });
+
+    const deleteAllGroupsUsersPromise = GroupsUsers.destroy({
+      where: { ID: groupsUsersIdToDelete },
+    });
+
+    const deleteAllUsersPromise = Users.destroy({ where: { ID: userId } });
+
+    try {
+      await Promise.all([
+        deleteAllUsersBillsPromise,
+        deleteAllCommentsPromise,
+        deleteAllBillsPromise,
+        deleteAllGroupsUsersPromise,
+        deleteAllUsersPromise,
+      ]);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: 'internal server error' });
+    }
   },
 );
 
@@ -143,6 +195,7 @@ usersRouter.post('/register', async (req, res) => {
       console.log('Error: ', err);
       res.status(500).json({ error: 'Cannot register user at the moment!' });
     });
+
     if (savedUser) res.json({ message: 'Thanks for registering' });
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -150,6 +203,7 @@ usersRouter.post('/register', async (req, res) => {
     res.status(200).send({
       success: 'true',
     });
+
     res.redirect('/login');
     res.end();
     return res.json(user);
@@ -162,12 +216,13 @@ usersRouter.post('/register', async (req, res) => {
 
 usersRouter.post('/login', async (req, res) => {
   const { Email, Password } = req.body;
-  console.log(Email, Password);
+
   const userWithEmail = await Users.findOne({ where: { Email } }).catch((err) => {
     console.log('Error: ', err);
   });
 
   if (!userWithEmail) return res.json({ message: 'Email or password does not match!' });
+
   if (!(await bcrypt.compare(Password, userWithEmail.Password)))
     return res.json({ message: 'Password does not match!' });
 
@@ -175,10 +230,12 @@ usersRouter.post('/login', async (req, res) => {
     { id: userWithEmail.ID, email: userWithEmail.Email },
     process.env.JWT_SECRET,
   );
+
   res.json({
     message: 'Welcome back',
     token: jwtToken,
   });
+
   res.send({
     FullName: userWithEmail.FullName,
     Email: userWithEmail.Email,
