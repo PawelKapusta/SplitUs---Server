@@ -91,6 +91,7 @@ app.delete('/groupsUsers/:id', groupsUsersRouter);
 
 app.get('/usersBills', usersBillsRouter);
 app.post('/usersBills', usersBillsRouter);
+app.put('/usersBills/:id', usersBillsRouter);
 app.delete('/usersBills/:id', usersBillsRouter);
 
 app.get('/questionsFaq', questionsFaqRouter);

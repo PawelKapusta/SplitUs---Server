@@ -11,7 +11,7 @@ billsRouter.get('/bills', passport.authenticate('jwt', { session: false }), (req
   Bills.findAll()
     .then((bills) => {
       res.status(200).send({
-        success: 'true',
+        success: 'Successfully getting bills',
         message: 'bills',
         bills: bills,
       });
@@ -45,25 +45,25 @@ billsRouter.post('/bills', passport.authenticate('jwt', { session: false }), asy
     CodeQR,
     GroupId,
   } = req.body;
+
+  const bill = Bills.create({
+    Name: Name,
+    Description: Description,
+    DataCreated: DataCreated,
+    DataEnd: DataEnd,
+    BillImage: BillImage,
+    CurrencyCode: CurrencyCode,
+    Debt: Debt,
+    OwnerId: OwnerId,
+    CodeQR: CodeQR,
+    GroupId: GroupId,
+  });
+
   try {
-    const bill = await Bills.create({
-      Name: Name,
-      Description: Description,
-      DataCreated: DataCreated,
-      DataEnd: DataEnd,
-      BillImage: BillImage,
-      CurrencyCode: CurrencyCode,
-      Debt: Debt,
-      OwnerId: OwnerId,
-      CodeQR: CodeQR,
-      GroupId: GroupId,
-    }).then(function (bill) {
-      res.json(bill);
-    });
+    await Promise.all([bill]);
     res.status(200).send({
-      success: 'true',
+      success: 'Successfully added bill',
     });
-    return res.json(bill);
   } catch (error) {
     console.log('Error with creating bill: ', error);
     return res.status(500).json(error);
@@ -100,9 +100,11 @@ billsRouter.put(
       bill.OwnerId = OwnerId;
       bill.CodeQR = CodeQR;
       bill.GroupId = GroupId;
+
       await bill.save();
+
       return res.status(200).send({
-        success: 'true',
+        success: 'Successfully updated bill',
         message: 'bill',
         bill: bill,
       });
@@ -125,33 +127,6 @@ billsRouter.delete(
       );
 
     const commentsIdToDelete = allComments.map((comment) => comment['ID']);
-    console.log(commentsIdToDelete);
-    console.log(allComments.length);
-
-    for (let i = 0; i < commentsIdToDelete.length; i++) {
-      const commentIdToDelete = commentsIdToDelete[i];
-      Comments.findByPk(commentIdToDelete)
-        .then((comment) => {
-          comment
-            .destroy()
-            .then(
-              res.status(200).send({
-                success: 'true',
-                message: 'comment',
-                comment: 'Successfully deleted',
-              }),
-            )
-            .catch((error) =>
-              console.log(
-                'Error with destroying instance of comment when deleting bill in database: ',
-                error.message,
-              ),
-            );
-        })
-        .catch((err) =>
-          console.log(`Error when fetching bill with ID: ${commentIdToDelete} `, err),
-        );
-    }
 
     const allUsersBills = await UsersBills.findAll({ where: { BillId: billId } })
       .then((response) => response)
@@ -160,52 +135,18 @@ billsRouter.delete(
       );
 
     const usersBillsIdToDelete = allUsersBills.map((usersBills) => usersBills['ID']);
-    console.log(usersBillsIdToDelete);
-    console.log(allUsersBills.length);
 
-    for (let i = 0; i < usersBillsIdToDelete.length; i++) {
-      const usersBillsIdToDeleteElement = usersBillsIdToDelete[i];
-      UsersBills.findByPk(usersBillsIdToDeleteElement)
-        .then((usersBills) => {
-          usersBills
-            .destroy()
-            .then(
-              res.status(200).send({
-                success: 'true',
-                message: 'usersBills',
-                usersBills: 'Successfully deleted',
-              }),
-            )
-            .catch((error) =>
-              console.log(
-                'Error with destroying instance of usersBills when deleting bill in database: ',
-                error.message,
-              ),
-            );
-        })
-        .catch((err) =>
-          console.log(
-            `Error when deleting usersBills with ID: ${usersBillsIdToDeleteElement} `,
-            err,
-          ),
-        );
+    const deleteAllCommentsPromise = Comments.destroy({ where: { ID: commentsIdToDelete } });
+
+    const deleteAllUsersBillsPromise = UsersBills.destroy({ where: { ID: usersBillsIdToDelete } });
+
+    const deleteBillPromise = Bills.destroy({ where: { ID: billId } });
+
+    try {
+      await Promise.all([deleteAllCommentsPromise, deleteAllUsersBillsPromise, deleteBillPromise]);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: 'internal server error' });
     }
-
-    Bills.findByPk(billId)
-      .then((bill) => {
-        bill
-          .destroy()
-          .then(
-            res.status(200).send({
-              success: 'true',
-              message: 'bill',
-              bill: 'Successfully deleted',
-            }),
-          )
-          .catch((error) =>
-            console.log('Error with destroying instance of bill in database: ', error.message),
-          );
-      })
-      .catch((err) => console.log(`Error when deleting bill with ID: ${billId} `, err));
   },
 );

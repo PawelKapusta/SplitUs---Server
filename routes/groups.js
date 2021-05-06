@@ -37,18 +37,18 @@ groupsRouter.get('/groups/:id', passport.authenticate('jwt', { session: false })
 
 groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { Name, Description, DataCreated } = req.body;
+
+  const group = await Groups.create({
+    Name: Name,
+    Description: Description,
+    DataCreated: DataCreated,
+  });
+
   try {
-    const group = await Groups.create({
-      Name: Name,
-      Description: Description,
-      DataCreated: DataCreated,
-    }).then(function (group) {
-      res.json(group);
-    });
+    await Promise.all([group]);
     res.status(200).send({
-      success: 'true',
+      success: 'Successfully added group',
     });
-    return res.json(group);
   } catch (error) {
     console.log('Error with creating group: ', error);
     return res.status(500).json(error);
@@ -92,8 +92,6 @@ groupsRouter.delete(
       );
 
     const billsIdToDelete = allBills.map((bill) => bill['ID']);
-    console.log('Bills id', billsIdToDelete);
-    console.log(billsIdToDelete.length);
 
     const allComments = await Comments.findAll({
       where: Sequelize.or({ BillId: billsIdToDelete }),
@@ -104,8 +102,6 @@ groupsRouter.delete(
       );
 
     const commentsIdToDelete = allComments.map((comment) => comment['ID']);
-    console.log('Comments id', commentsIdToDelete);
-    console.log(commentsIdToDelete.length);
 
     const allUsersBills = await UsersBills.findAll({
       where: Sequelize.or({ BillId: billsIdToDelete }),
@@ -116,8 +112,6 @@ groupsRouter.delete(
       );
 
     const usersBillsIdToDelete = allUsersBills.map((usersBills) => usersBills['ID']);
-    console.log('usersBills id', usersBillsIdToDelete);
-    console.log(usersBillsIdToDelete.length);
 
     const allGroupsUsers = await GroupsUsers.findAll({
       where: { GroupId: groupId },
@@ -128,85 +122,30 @@ groupsRouter.delete(
       );
 
     const groupsUsersIdToDelete = allGroupsUsers.map((usersBills) => usersBills['ID']);
-    console.log('groupsUsers id', groupsUsersIdToDelete);
-    console.log(groupsUsersIdToDelete.length);
 
-    Comments.destroy({ where: { ID: commentsIdToDelete } })
-      .then(
-        res.status(200).send({
-          success: 'true',
-          message: 'comment',
-          comment: 'Successfully deleted',
-        }),
-      )
-      .catch((error) =>
-        console.log(
-          'Error with destroying instance of comment when deleting group in database: ',
-          error.message,
-        ),
-      );
+    const deleteAllCommentsPromise = Comments.destroy({ where: { ID: commentsIdToDelete } });
 
-    UsersBills.destroy({ where: { ID: usersBillsIdToDelete } })
-      .then(
-        res.status(200).send({
-          success: 'true',
-          message: 'userBills',
-          userBills: 'Successfully deleted',
-        }),
-      )
-      .catch((error) =>
-        console.log(
-          'Error with destroying instance of userBills when deleting group in database: ',
-          error.message,
-        ),
-      );
-    console.log('here');
-    Bills.destroy({ where: { ID: billsIdToDelete } })
-      .then(
-        res.status(200).send({
-          success: 'true',
-          message: 'bills',
-          bills: 'Successfully deleted',
-        }),
-      )
-      .catch((error) =>
-        console.log(
-          'Error with destroying instance of bills when deleting group in database: ',
-          error.message,
-        ),
-      );
+    const deleteAllUsersBillsPromise = UsersBills.destroy({ where: { ID: usersBillsIdToDelete } });
 
-    GroupsUsers.destroy({ where: { ID: groupsUsersIdToDelete } })
-      .then(
-        res.status(200).send({
-          success: 'true',
-          message: 'groupsUsers',
-          groupsUsers: 'Successfully deleted',
-        }),
-      )
-      .catch((error) =>
-        console.log(
-          'Error with destroying instance of groupsUsers when deleting group in database: ',
-          error.message,
-        ),
-      );
+    const deleteAllBillsPromise = Bills.destroy({ where: { ID: billsIdToDelete } });
 
-    Groups.findByPk(groupId)
-      .then((group) => {
-        group
-          .destroy()
-          .then(
-            res.status(200).send({
-              success: 'true',
-              message: 'group',
-              group: 'Successfully deleted',
-            }),
-          )
-          .catch((error) =>
-            console.log('Error with destroying instance of group in database: ', error.message),
-          );
-      })
-      .catch((err) => console.log(`Error when fetching group with ID: ${groupId} `, err));
-    res.end('ok');
+    const deleteAllGroupsUsersPromise = GroupsUsers.destroy({
+      where: { ID: groupsUsersIdToDelete },
+    });
+
+    const deleteGroupPromise = Groups.destroy({ where: { ID: groupId } });
+
+    try {
+      await Promise.all([
+        deleteAllCommentsPromise,
+        deleteAllUsersBillsPromise,
+        deleteAllBillsPromise,
+        deleteAllGroupsUsersPromise,
+        deleteGroupPromise,
+      ]);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: 'internal server error' });
+    }
   },
 );

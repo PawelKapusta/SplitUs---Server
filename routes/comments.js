@@ -39,18 +39,17 @@ commentsRouter.post(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     const { BillId, UserId, Content } = req.body;
+
+    const comment = await Comments.create({
+      BillId: BillId,
+      UserId: UserId,
+      Content: Content,
+    });
     try {
-      const comment = await Comments.create({
-        BillId: BillId,
-        UserId: UserId,
-        Content: Content,
-      }).then(function (bill) {
-        res.json(bill);
-      });
+      await Promise.all([comment]);
       res.status(200).send({
-        success: 'true',
+        success: 'Successfully added comment',
       });
-      return res.json(comment);
     } catch (error) {
       console.log('Error with creating comment: ', error);
       return res.status(500).json(error);
