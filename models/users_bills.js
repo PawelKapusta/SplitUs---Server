@@ -28,10 +28,6 @@ export const UsersBills = db.define(
         key: 'ID',
       },
     },
-    CurrencyCode: {
-      type: Sequelize.STRING(3),
-      allowNull: false,
-    },
     Debt: {
       type: Sequelize.DECIMAL(10, 2),
       allowNull: false,
