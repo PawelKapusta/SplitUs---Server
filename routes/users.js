@@ -237,6 +237,7 @@ usersRouter.post('/login', async (req, res) => {
   });
 
   res.send({
+    ID: userWithEmail.ID,
     FullName: userWithEmail.FullName,
     Email: userWithEmail.Email,
     Password: userWithEmail.Password,

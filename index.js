@@ -10,6 +10,7 @@ import { usersBillsRouter } from './routes/users_bills.js';
 import { commentsRouter } from './routes/comments.js';
 import { groupsUsersRouter } from './routes/groups_users.js';
 import { questionsFaqRouter } from './routes/questionsFaq.js';
+import { currencyRouter } from './routes/currency.js';
 import { Users } from './models/users.js';
 import { notFound, errorHandler } from './middlewares.js';
 
@@ -72,6 +73,7 @@ app.get('/groups/:id', groupsRouter);
 app.post('/groups', groupsRouter);
 app.put('/groups/:id', groupsRouter);
 app.delete('/groups/:id', groupsRouter);
+app.get('/groups2', groupsRouter);
 
 app.get('/bills', billsRouter);
 app.get('/bills/:id', billsRouter);
@@ -98,6 +100,8 @@ app.get('/questionsFaq', questionsFaqRouter);
 app.post('/questionsFaq', questionsFaqRouter);
 app.put('/questionsFaq/:id', questionsFaqRouter);
 app.delete('/questionsFaq/:id', questionsFaqRouter);
+
+app.get('/currencyData', currencyRouter);
 
 app.listen(process.env.PORT || 5000, async () => {
   console.log(`Running on port ${process.env.PORT} or 5000`);

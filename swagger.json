@@ -44,15 +44,22 @@
       "description": "All Questions FAQ in system"
     }
   ],
-  "schemes": ["http"],
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "paths": {
     "/users": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get all users in system",
-
         "responses": {
           "200": {
             "description": "OK",
@@ -65,7 +72,9 @@
     },
     "/register": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Create new user in system",
         "parameters": [
           {
@@ -77,7 +86,9 @@
             }
           }
         ],
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "New user is created",
@@ -100,7 +111,9 @@
       ],
       "delete": {
         "summary": "Delete user with given ID",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "responses": {
           "200": {
             "description": "User is deleted",
@@ -112,7 +125,9 @@
       },
       "put": {
         "summary": "Update user with give ID",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "parameters": [
           {
             "name": "user",
@@ -136,74 +151,266 @@
   },
   "definitions": {
     "User": {
-      "required": ["name", "_id", "companies"],
+      "required": [
+        "ID",
+        "FullName",
+        "Email",
+        "Password",
+        "Phone",
+        "BirthDate",
+        "isAdmin",
+        "isBlocked"
+      ],
       "properties": {
-        "_id": {
+        "ID": {
           "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
           "uniqueItems": true
         },
-        "isPublic": {
-          "type": "boolean"
+        "FullName": {
+          "type": "string",
+          "maxLength": 70
         },
-        "name": {
-          "type": "string"
+        "Email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 255
         },
-        "books": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "amount": {
-                "type": "number"
-              }
-            }
-          }
+        "Password": {
+          "type": "string",
+          "format": "passport",
+          "description": "Passport is hashed",
+          "maxLength": 255
         },
-        "companies": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "Phone": {
+          "type": "integer",
+          "minLength": 9,
+          "maxLength": 9
+        },
+        "BirthDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "AvatarImage": {
+          "type": "string",
+          "format": "url",
+          "maxLength": 1024
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "default": false
+        },
+        "isBlocked": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
-    "updateUser": {
-      "required": ["name", "companies"],
+    "Group": {
+      "required": [
+        "ID",
+        "Name",
+        "Description",
+        "DataCreated"
+      ],
       "properties": {
-        "isPublic": {
-          "type": "boolean"
+        "ID": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
+          "uniqueItems": true
         },
-        "name": {
-          "type": "string"
+        "Name": {
+          "type": "string",
+          "maxLength": 50
         },
-        "books": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "amount": {
-                "type": "number"
-              }
-            }
-          }
+        "Description": {
+          "type": "string",
+          "maxLength": 255
         },
-        "companies": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "DataCreated": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
-    "Users": {
-      "type": "array",
-      "$ref": "#/definitions/User"
+    "Bill": {
+      "required": [
+        "ID",
+        "Name",
+        "Description",
+        "DataCreated",
+        "DataEnd",
+        "CurrencyCode",
+        "Debt",
+        "OwnerId",
+        "GroupId"
+      ],
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
+          "uniqueItems": true
+        },
+        "Name": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "Description": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "DataCreated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "DataEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "BillImage": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "CurrencyCode": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "Debt": {
+          "type": "number",
+          "format": "double"
+        },
+        "OwnerId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Users table"
+        },
+        "CodeQR": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "GroupId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Groups table"
+        }
+      }
+    },
+    "GroupsUsers": {
+      "required": [
+        "ID",
+        "GroupId",
+        "UserId"
+      ],
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
+          "uniqueItems": true
+        },
+        "GroupId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Groups table"
+        },
+        "UserId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Users table"
+        }
+      }
+    },
+    "UsersBills": {
+      "required": [
+        "ID",
+        "UserId",
+        "BillId",
+        "Debt"
+      ],
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
+          "uniqueItems": true
+        },
+        "UserId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Users table"
+        },
+        "BillId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Bills table"
+        },
+        "Debt": {
+          "type": "number",
+          "format": "double"
+        },
+        "isRegulated": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Comment": {
+      "required": [
+        "ID",
+        "UserId",
+        "BillId",
+        "Content"
+      ],
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
+          "uniqueItems": true
+        },
+        "UserId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Users table"
+        },
+        "BillId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is foreign key to Bills table"
+        },
+        "Content": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "QuestionFAQ": {
+      "required": [
+        "ID",
+        "Question",
+        "Answer"
+      ],
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "format": "int32",
+          "description": "This is primary key, auto-increment value",
+          "uniqueItems": true
+        },
+        "Question": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "Answer": {
+          "type": "string",
+          "format": "text"
+        }
+      }
     }
+
   }
 }
