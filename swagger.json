@@ -44,21 +44,13 @@
       "description": "All Questions FAQ in system"
     }
   ],
-  "schemes": [
-    "http"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "paths": {
     "/users": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Get all users in system",
         "responses": {
           "200": {
@@ -72,9 +64,7 @@
     },
     "/register": {
       "post": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Create new user in system",
         "parameters": [
           {
@@ -86,9 +76,7 @@
             }
           }
         ],
-        "produces": [
-          "application/json"
-        ],
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "New user is created",
@@ -111,9 +99,7 @@
       ],
       "delete": {
         "summary": "Delete user with given ID",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "responses": {
           "200": {
             "description": "User is deleted",
@@ -125,9 +111,7 @@
       },
       "put": {
         "summary": "Update user with give ID",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "user",
@@ -208,12 +192,7 @@
       }
     },
     "Group": {
-      "required": [
-        "ID",
-        "Name",
-        "Description",
-        "DataCreated"
-      ],
+      "required": ["ID", "Name", "Description", "DataCreated"],
       "properties": {
         "ID": {
           "type": "integer",
@@ -300,11 +279,7 @@
       }
     },
     "GroupsUsers": {
-      "required": [
-        "ID",
-        "GroupId",
-        "UserId"
-      ],
+      "required": ["ID", "GroupId", "UserId"],
       "properties": {
         "ID": {
           "type": "integer",
@@ -325,12 +300,7 @@
       }
     },
     "UsersBills": {
-      "required": [
-        "ID",
-        "UserId",
-        "BillId",
-        "Debt"
-      ],
+      "required": ["ID", "UserId", "BillId", "Debt"],
       "properties": {
         "ID": {
           "type": "integer",
@@ -359,12 +329,7 @@
       }
     },
     "Comment": {
-      "required": [
-        "ID",
-        "UserId",
-        "BillId",
-        "Content"
-      ],
+      "required": ["ID", "UserId", "BillId", "Content"],
       "properties": {
         "ID": {
           "type": "integer",
@@ -389,11 +354,7 @@
       }
     },
     "QuestionFAQ": {
-      "required": [
-        "ID",
-        "Question",
-        "Answer"
-      ],
+      "required": ["ID", "Question", "Answer"],
       "properties": {
         "ID": {
           "type": "integer",
@@ -411,6 +372,5 @@
         }
       }
     }
-
   }
 }
