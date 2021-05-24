@@ -215,15 +215,15 @@ usersRouter.post('/register', async (req, res) => {
 });
 
 usersRouter.post('/login', async (req, res) => {
-  const { Email, Password } = req.body;
-
-  const userWithEmail = await Users.findOne({ where: { Email } }).catch((err) => {
+  const { email, password } = req.body;
+  console.log({ email, password });
+  const userWithEmail = await Users.findOne({ where: { Email: email } }).catch((err) => {
     console.log('Error: ', err);
   });
 
   if (!userWithEmail) return res.json({ message: 'Email or password does not match!' });
 
-  if (!(await bcrypt.compare(Password, userWithEmail.Password)))
+  if (!(await bcrypt.compare(password, userWithEmail.Password)))
     return res.json({ message: 'Password does not match!' });
 
   const jwtToken = jwt.sign(
@@ -233,6 +233,15 @@ usersRouter.post('/login', async (req, res) => {
 
   res.json({
     message: 'Welcome back',
+    ID: userWithEmail.ID,
+    FullName: userWithEmail.FullName,
+    Email: userWithEmail.Email,
+    Password: userWithEmail.Password,
+    Phone: userWithEmail.Phone,
+    BirthDate: userWithEmail.BirthDate,
+    AvatarImage: userWithEmail.AvatarImage,
+    isAdmin: userWithEmail.isAdmin,
+    isBlocked: userWithEmail.isBlocked,
     token: jwtToken,
   });
 
