@@ -2,6 +2,7 @@ import express from 'express';
 export const commentsRouter = express.Router();
 import { Comments } from '../models/comments.js';
 import { createRequire } from 'module';
+import { v4 as uuidv4 } from 'uuid';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -41,6 +42,7 @@ commentsRouter.post(
     const { BillId, UserId, Content } = req.body;
 
     const comment = await Comments.create({
+      ID: uuidv4(),
       BillId: BillId,
       UserId: UserId,
       Content: Content,

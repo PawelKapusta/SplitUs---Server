@@ -88,6 +88,8 @@ app.put('/comments/:id', commentsRouter);
 app.delete('/comments/:id', commentsRouter);
 
 app.get('/groupsUsers', groupsUsersRouter);
+app.get('/groupsUsers/user/:id', groupsUsersRouter);
+app.get('/groupsUsers/group/:id', groupsUsersRouter);
 app.post('/groupsUsers', groupsUsersRouter);
 app.delete('/groupsUsers/:id', groupsUsersRouter);
 
