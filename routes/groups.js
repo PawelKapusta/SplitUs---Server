@@ -7,6 +7,7 @@ import { Bills } from '../models/bills.js';
 import Sequelize from 'sequelize';
 import { UsersBills } from '../models/users_bills.js';
 import { GroupsUsers } from '../models/groups_users.js';
+import { v4 as uuidv4 } from 'uuid';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -39,6 +40,7 @@ groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), a
   const { Name, Description, DataCreated } = req.body;
 
   const group = await Groups.create({
+    ID: uuidv4(),
     Name: Name,
     Description: Description,
     DataCreated: DataCreated,
@@ -46,8 +48,10 @@ groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), a
 
   try {
     await Promise.all([group]);
-    res.status(200).send({
+    console.log(group.ID);
+    res.status(200).json({
       success: 'Successfully added group',
+      groupId: group.ID,
     });
   } catch (error) {
     console.log('Error with creating group: ', error);

@@ -1,7 +1,7 @@
 import express from 'express';
 import { UsersBills } from '../models/users_bills.js';
 import { createRequire } from 'module';
-
+import { v4 as uuidv4 } from 'uuid';
 export const usersBillsRouter = express.Router();
 const require = createRequire(import.meta.url);
 const passport = require('passport');
@@ -10,6 +10,7 @@ usersBillsRouter.get(
   '/usersBills',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
+    console.log(uuidv4());
     UsersBills.findAll()
       .then((usersBills) => {
         res.status(200).send({
@@ -69,6 +70,7 @@ usersBillsRouter.post(
 
       if (checkIfAlreadyExistsInDatabase[0] === null) {
         const billUser = await UsersBills.create({
+          ID: uuidv4(),
           UserId: usersBillsArray[i].userId,
           BillId: billId,
           Debt: usersBillsArray[i].debt,

@@ -22,6 +22,6 @@ currencyRouter.get('/currencyData', async (req, res) => {
     });
     res.end();
   } catch (error) {
-    return res.status(400).json({ error: error.toString() });
+    return res.status(500).json({ error: error.toString() });
   }
 });

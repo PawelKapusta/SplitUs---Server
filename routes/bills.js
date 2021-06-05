@@ -4,6 +4,7 @@ import { Bills } from '../models/bills.js';
 import { createRequire } from 'module';
 import { Comments } from '../models/comments.js';
 import { UsersBills } from '../models/users_bills.js';
+import { v4 as uuidv4 } from 'uuid';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -47,6 +48,7 @@ billsRouter.post('/bills', passport.authenticate('jwt', { session: false }), asy
   } = req.body;
 
   const bill = Bills.create({
+    ID: uuidv4(),
     Name: Name,
     Description: Description,
     DataCreated: DataCreated,
