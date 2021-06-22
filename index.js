@@ -77,8 +77,12 @@ app.get('/groups2', groupsRouter);
 
 app.get('/bills', billsRouter);
 app.get('/bills/:id', billsRouter);
+app.get('/bills/owner/:id', billsRouter);
+app.get('/bills/group/:id', billsRouter);
 app.post('/bills', billsRouter);
 app.put('/bills/:id', billsRouter);
+app.put('/bills/owner/:id', billsRouter);
+app.put('/bills/:id/codeQr', billsRouter);
 app.delete('/bills/:id', billsRouter);
 
 app.get('/comments', commentsRouter);
@@ -90,11 +94,10 @@ app.delete('/comments/:id', commentsRouter);
 app.get('/groupsUsers', groupsUsersRouter);
 app.get('/groupsUsers/user/:id', groupsUsersRouter);
 app.get('/groupsUsers/group/:id', groupsUsersRouter);
-app.post('/groupsUsers', groupsUsersRouter);
 app.delete('/groupsUsers/:id', groupsUsersRouter);
 
 app.get('/usersBills', usersBillsRouter);
-app.post('/usersBills', usersBillsRouter);
+app.get('/usersBills/bill/:id', usersBillsRouter);
 app.put('/usersBills/:id', usersBillsRouter);
 app.delete('/usersBills/:id', usersBillsRouter);
 

@@ -37,7 +37,7 @@ groupsRouter.get('/groups/:id', passport.authenticate('jwt', { session: false })
 });
 
 groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { Name, Description, DataCreated } = req.body;
+  const { Name, Description, DataCreated, usersIdArray } = req.body;
 
   const group = await Groups.create({
     ID: uuidv4(),
@@ -48,14 +48,43 @@ groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), a
 
   try {
     await Promise.all([group]);
-    console.log(group.ID);
-    res.status(200).json({
-      success: 'Successfully added group',
-      groupId: group.ID,
-    });
+    if (res.status(200)) {
+      const groupsUsersPromisesArray = [];
+
+      for (let i = 0; i < usersIdArray.length; i++) {
+        const findUserInGroupPromise = GroupsUsers.findOne({
+          where: { GroupId: group.ID, UserId: usersIdArray[i] },
+        });
+
+        const checkIfAlreadyExistsInDatabase = await Promise.all([findUserInGroupPromise]);
+
+        if (checkIfAlreadyExistsInDatabase[0] === null) {
+          const groupsUsers = await GroupsUsers.create({
+            ID: uuidv4(),
+            GroupId: group.ID,
+            UserId: usersIdArray[i],
+          });
+          groupsUsersPromisesArray.push(groupsUsers);
+        }
+      }
+
+      try {
+        await Promise.all(
+          groupsUsersPromisesArray.map(function (inner) {
+            return Promise.all([inner]);
+          }),
+        );
+        res.status(200).send({
+          success: 'Successfully added all groupsUsers',
+        });
+      } catch (error) {
+        console.log('Error with creating groupsUsers: ', error);
+        res.status(500).json(error);
+      }
+    }
   } catch (error) {
     console.log('Error with creating group: ', error);
-    return res.status(500).json(error);
+    return res.status(501).json(error);
   }
 });
 
