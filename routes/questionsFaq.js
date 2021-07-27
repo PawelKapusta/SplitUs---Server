@@ -3,6 +3,7 @@ export const questionsFaqRouter = express.Router();
 import { QuestionsFaq } from '../models/questionsFaq.js';
 import { createRequire } from 'module';
 import { isAdmin } from '../utils.js';
+import { v4 as uuidv4 } from 'uuid';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -25,11 +26,13 @@ questionsFaqRouter.post(
   async (req, res) => {
     const { Question, Answer } = req.body;
     try {
-      const question = await QuestionsFaq.create({ Question: Question, Answer: Answer }).then(
-        function (question) {
-          res.json(question);
-        },
-      );
+      const question = await QuestionsFaq.create({
+        ID: uuidv4(),
+        Question: Question,
+        Answer: Answer,
+      }).then(function (question) {
+        res.json(question);
+      });
       res.status(200).send({
         success: 'true',
       });

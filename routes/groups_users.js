@@ -2,6 +2,9 @@ import express from 'express';
 export const groupsUsersRouter = express.Router();
 import { GroupsUsers } from '../models/groups_users.js';
 import { createRequire } from 'module';
+import { v4 as uuidv4 } from 'uuid';
+import { Groups } from '../models/groups.js';
+import { Users } from '../models/users.js';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -21,44 +24,67 @@ groupsUsersRouter.get(
   },
 );
 
-groupsUsersRouter.post(
+groupsUsersRouter.get(
+  '/groupsUsers/user/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    const userId = req.params.id;
+
+    const allGroupsIdPromise = await GroupsUsers.findAll({ where: { UserId: userId } })
+      .then((response) => response)
+      .catch((err) => console.log('Error when fetching all groupsID of given userId: ', err));
+
+    const allGroupsID = allGroupsIdPromise.map((group) => group['GroupId']);
+
+    Groups.findAll({ where: { ID: allGroupsID } })
+      .then((response) => {
+        res.status(200).send({
+          response,
+        });
+      })
+      .catch((err) => console.log('Error when fetching all groups of given userId: ', err));
+
+    console.log(allGroupsID);
+  },
+);
+
+groupsUsersRouter.get(
+  '/groupsUsers/group/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    const groupId = req.params.id;
+
+    const allUsersIdPromise = await GroupsUsers.findAll({ where: { GroupId: groupId } })
+      .then((response) => response)
+      .catch((err) => console.log('Error when fetching all usersId of given groupId: ', err));
+
+    const allUsersID = allUsersIdPromise.map((user) => user['UserId']);
+
+    Users.findAll({ where: { ID: allUsersID } })
+      .then((response) => {
+        res.status(200).send({
+          response,
+        });
+      })
+      .catch((err) => console.log('Error when fetching all users of given groupId: ', err));
+
+    console.log(allUsersID);
+  },
+);
+
+groupsUsersRouter.get(
   '/groupsUsers',
   passport.authenticate('jwt', { session: false }),
-  async (req, res, next) => {
-    const { GroupId, usersIdArray } = req.body;
-
-    const groupsUsersPromisesArray = [];
-
-    for (let i = 0; i < usersIdArray.length; i++) {
-      console.log('element in the array', usersIdArray[i]);
-      const findUserInGroupPromise = GroupsUsers.findOne({
-        where: { GroupId: GroupId, UserId: usersIdArray[i] },
-      });
-
-      const checkIfAlreadyExistsInDatabase = await Promise.all([findUserInGroupPromise]);
-
-      if (checkIfAlreadyExistsInDatabase[0] === null) {
-        const groupsUsers = await GroupsUsers.create({
-          GroupId: GroupId,
-          UserId: usersIdArray[i],
+  (req, res) => {
+    GroupsUsers.findAll()
+      .then((groupsUsers) => {
+        res.status(200).send({
+          success: 'true',
+          message: 'groupsUsers',
+          groupsUsers: groupsUsers,
         });
-        groupsUsersPromisesArray.push(groupsUsers);
-      }
-    }
-
-    try {
-      await Promise.all(
-        groupsUsersPromisesArray.map(function (inner) {
-          return Promise.all([inner]);
-        }),
-      );
-      res.status(200).send({
-        success: 'Successfully added all groupsUsers',
-      });
-    } catch (error) {
-      console.log('Error with creating groupsUsers: ', error);
-      res.status(500).json(error);
-    }
+      })
+      .catch((err) => console.log('Error when fetching all groupsUsers: ', err));
   },
 );
 

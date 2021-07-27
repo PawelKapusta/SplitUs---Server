@@ -7,6 +7,7 @@ import { Bills } from '../models/bills.js';
 import Sequelize from 'sequelize';
 import { UsersBills } from '../models/users_bills.js';
 import { GroupsUsers } from '../models/groups_users.js';
+import { v4 as uuidv4 } from 'uuid';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -36,9 +37,10 @@ groupsRouter.get('/groups/:id', passport.authenticate('jwt', { session: false })
 });
 
 groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { Name, Description, DataCreated } = req.body;
+  const { Name, Description, DataCreated, usersIdArray } = req.body;
 
   const group = await Groups.create({
+    ID: uuidv4(),
     Name: Name,
     Description: Description,
     DataCreated: DataCreated,
@@ -46,12 +48,43 @@ groupsRouter.post('/groups', passport.authenticate('jwt', { session: false }), a
 
   try {
     await Promise.all([group]);
-    res.status(200).send({
-      success: 'Successfully added group',
-    });
+    if (res.status(200)) {
+      const groupsUsersPromisesArray = [];
+
+      for (let i = 0; i < usersIdArray.length; i++) {
+        const findUserInGroupPromise = GroupsUsers.findOne({
+          where: { GroupId: group.ID, UserId: usersIdArray[i] },
+        });
+
+        const checkIfAlreadyExistsInDatabase = await Promise.all([findUserInGroupPromise]);
+
+        if (checkIfAlreadyExistsInDatabase[0] === null) {
+          const groupsUsers = await GroupsUsers.create({
+            ID: uuidv4(),
+            GroupId: group.ID,
+            UserId: usersIdArray[i],
+          });
+          groupsUsersPromisesArray.push(groupsUsers);
+        }
+      }
+
+      try {
+        await Promise.all(
+          groupsUsersPromisesArray.map(function (inner) {
+            return Promise.all([inner]);
+          }),
+        );
+        res.status(200).send({
+          success: 'Successfully added all groupsUsers',
+        });
+      } catch (error) {
+        console.log('Error with creating groupsUsers: ', error);
+        res.status(500).json(error);
+      }
+    }
   } catch (error) {
     console.log('Error with creating group: ', error);
-    return res.status(500).json(error);
+    return res.status(501).json(error);
   }
 });
 

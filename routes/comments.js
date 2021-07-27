@@ -2,6 +2,7 @@ import express from 'express';
 export const commentsRouter = express.Router();
 import { Comments } from '../models/comments.js';
 import { createRequire } from 'module';
+import { v4 as uuidv4 } from 'uuid';
 const require = createRequire(import.meta.url);
 const passport = require('passport');
 
@@ -21,16 +22,17 @@ commentsRouter.get(
   '/comments/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    const commentId = req.params.id;
-    Comments.findOne({ where: { ID: commentId } })
-      .then((comment) => {
+    const BillId = req.params.id;
+    console.log(req.params.id);
+    Comments.findAll({ where: { BillId: BillId } })
+      .then((comments) => {
         res.status(200).send({
           success: 'true',
           message: 'comment',
-          comment: comment,
+          comments: comments,
         });
       })
-      .catch((err) => console.log(`Error when fetching comment with ID: ${commentId} `, err));
+      .catch((err) => console.log(`Error when fetching comment of bill with id: ${BillId} `, err));
   },
 );
 
@@ -41,6 +43,7 @@ commentsRouter.post(
     const { BillId, UserId, Content } = req.body;
 
     const comment = await Comments.create({
+      ID: uuidv4(),
       BillId: BillId,
       UserId: UserId,
       Content: Content,

@@ -8,6 +8,7 @@ import { Comments } from '../models/comments.js';
 import Sequelize from 'sequelize';
 import { UsersBills } from '../models/users_bills.js';
 import { GroupsUsers } from '../models/groups_users.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export const usersRouter = express.Router();
 const require = createRequire(import.meta.url);
@@ -15,7 +16,7 @@ const bcrypt = require('bcrypt');
 const passport = require('passport');
 require('dotenv').config();
 
-usersRouter.get('/users', passport.authenticate('jwt', { session: false }), isAdmin, (req, res) => {
+usersRouter.get('/users', passport.authenticate('jwt', { session: false }), (req, res) => {
   Users.findAll()
     .then((users) => {
       res.status(200).send({
@@ -48,25 +49,29 @@ usersRouter.get(
 usersRouter.put('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { FullName, Email, Password, Phone, BirthDate, AvatarImage } = req.body;
   const userId = req.user.ID;
-
-  const hashedPassword = await bcrypt.hash(Password, 10);
+  console.log('body', req.body);
+  //const hashedPassword = await bcrypt.hash(Password, 10);
 
   try {
     const user = await Users.findOne({ where: { ID: userId } });
+    console.log('user', user);
+    console.log('compare', await bcrypt.compare(Password, user.Password));
+    console.log('compare', Password);
+    console.log('compare', user.Password);
+    if (Password !== user.Password) {
+      user.Password = await bcrypt.hash(Password, 10);
+    }
     user.FullName = FullName;
     user.Email = Email;
-    user.Password = hashedPassword;
     user.Phone = Phone;
     user.BirthDate = BirthDate;
     user.AvatarImage = AvatarImage;
+    console.log('useeer', user);
     await user.save();
-    return res.status(200).send({
-      success: 'true',
-      message: 'user',
-      user: user,
-    });
+    return res.status(200).send({ user });
   } catch (error) {
-    console.log('Error when updating user: ', error);
+    console.log('Error when updating user: ', error.errors[0].message);
+    return res.status(500).send({ message: error.errors[0].message });
   }
 });
 
@@ -168,7 +173,7 @@ usersRouter.delete(
 
 usersRouter.post('/register', async (req, res) => {
   const { FullName, Email, Password, Phone, BirthDate, AvatarImage, isAdmin, isBlocked } = req.body;
-
+  console.log(req.body);
   try {
     const alreadyExistsUser = await Users.findOne({ where: { Email } }).catch((err) => {
       console.log('Error: ', err);
@@ -179,8 +184,9 @@ usersRouter.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(Password, 10);
-
+    console.log(hashedPassword);
     const user = new Users({
+      ID: uuidv4(),
       FullName,
       Email,
       Password: hashedPassword,
@@ -215,15 +221,15 @@ usersRouter.post('/register', async (req, res) => {
 });
 
 usersRouter.post('/login', async (req, res) => {
-  const { Email, Password } = req.body;
-
-  const userWithEmail = await Users.findOne({ where: { Email } }).catch((err) => {
+  const { email, password } = req.body;
+  console.log({ email, password });
+  const userWithEmail = await Users.findOne({ where: { Email: email } }).catch((err) => {
     console.log('Error: ', err);
   });
 
   if (!userWithEmail) return res.json({ message: 'Email or password does not match!' });
 
-  if (!(await bcrypt.compare(Password, userWithEmail.Password)))
+  if (!(await bcrypt.compare(password, userWithEmail.Password)))
     return res.json({ message: 'Password does not match!' });
 
   const jwtToken = jwt.sign(
@@ -233,10 +239,20 @@ usersRouter.post('/login', async (req, res) => {
 
   res.json({
     message: 'Welcome back',
+    ID: userWithEmail.ID,
+    FullName: userWithEmail.FullName,
+    Email: userWithEmail.Email,
+    Password: userWithEmail.Password,
+    Phone: userWithEmail.Phone,
+    BirthDate: userWithEmail.BirthDate,
+    AvatarImage: userWithEmail.AvatarImage,
+    isAdmin: userWithEmail.isAdmin,
+    isBlocked: userWithEmail.isBlocked,
     token: jwtToken,
   });
 
   res.send({
+    ID: userWithEmail.ID,
     FullName: userWithEmail.FullName,
     Email: userWithEmail.Email,
     Password: userWithEmail.Password,
