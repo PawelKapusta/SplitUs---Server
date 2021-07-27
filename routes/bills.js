@@ -237,7 +237,7 @@ billsRouter.put(
   '/bills/owner/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-    const { Name, Description, DataCreated, DataEnd, BillImage, CurrencyCode, Debt } = req.body;
+    const { Name, Description, DataCreated, DataEnd, BillImage } = req.body;
     const billId = req.params.id;
 
     try {
@@ -247,8 +247,6 @@ billsRouter.put(
       bill.DataCreated = DataCreated;
       bill.DataEnd = DataEnd;
       bill.BillImage = BillImage;
-      bill.CurrencyCode = CurrencyCode;
-      bill.Debt = Debt;
 
       await bill.save();
 
