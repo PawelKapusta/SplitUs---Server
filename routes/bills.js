@@ -38,7 +38,6 @@ billsRouter.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     const userId = req.params.id;
-    console.log('userId', userId);
     Bills.findAll({ where: { OwnerId: userId } })
       .then((bills) => {
         res.status(200).send({
@@ -56,7 +55,6 @@ billsRouter.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     const billId = req.params.id;
-    console.log('userId', billId);
     UsersBills.findAll({ where: { BillId: billId } })
       .then((usersBills) => {
         res.status(200).send({
@@ -74,7 +72,6 @@ billsRouter.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     const groupId = req.params.id;
-    console.log('userId', groupId);
     Bills.findAll({ where: { GroupId: groupId } })
       .then((bills) => {
         res.status(200).send({
@@ -103,7 +100,6 @@ billsRouter.post('/bills', passport.authenticate('jwt', { session: false }), asy
     isRegulated,
   } = req.body;
 
-  console.log('here usersBills', usersBillsArray);
   const bill = Bills.create({
     ID: uuidv4(),
     Name: Name,

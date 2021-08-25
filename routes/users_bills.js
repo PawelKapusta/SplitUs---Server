@@ -11,7 +11,6 @@ usersBillsRouter.get(
   '/usersBills',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    console.log(uuidv4());
     UsersBills.findAll()
       .then((usersBills) => {
         res.status(200).send({

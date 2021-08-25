@@ -43,8 +43,6 @@ groupsUsersRouter.get(
         });
       })
       .catch((err) => console.log('Error when fetching all groups of given userId: ', err));
-
-    console.log(allGroupsID);
   },
 );
 

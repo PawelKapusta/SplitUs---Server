@@ -23,7 +23,6 @@ commentsRouter.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     const BillId = req.params.id;
-    console.log(req.params.id);
     Comments.findAll({ where: { BillId: BillId } })
       .then((comments) => {
         res.status(200).send({

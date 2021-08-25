@@ -49,15 +49,9 @@ usersRouter.get(
 usersRouter.put('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { FullName, Email, Password, Phone, BirthDate, AvatarImage } = req.body;
   const userId = req.user.ID;
-  console.log('body', req.body);
-  //const hashedPassword = await bcrypt.hash(Password, 10);
 
   try {
     const user = await Users.findOne({ where: { ID: userId } });
-    console.log('user', user);
-    console.log('compare', await bcrypt.compare(Password, user.Password));
-    console.log('compare', Password);
-    console.log('compare', user.Password);
     if (Password !== user.Password) {
       user.Password = await bcrypt.hash(Password, 10);
     }
@@ -66,7 +60,6 @@ usersRouter.put('/profile', passport.authenticate('jwt', { session: false }), as
     user.Phone = Phone;
     user.BirthDate = BirthDate;
     user.AvatarImage = AvatarImage;
-    console.log('useeer', user);
     await user.save();
     return res.status(200).send({ user });
   } catch (error) {
@@ -173,7 +166,6 @@ usersRouter.delete(
 
 usersRouter.post('/register', async (req, res) => {
   const { FullName, Email, Password, Phone, BirthDate, AvatarImage, isAdmin, isBlocked } = req.body;
-  console.log(req.body);
   try {
     const alreadyExistsUser = await Users.findOne({ where: { Email } }).catch((err) => {
       console.log('Error: ', err);
@@ -184,7 +176,6 @@ usersRouter.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(Password, 10);
-    console.log(hashedPassword);
     const user = new Users({
       ID: uuidv4(),
       FullName,
@@ -222,7 +213,6 @@ usersRouter.post('/register', async (req, res) => {
 
 usersRouter.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log({ email, password });
   const userWithEmail = await Users.findOne({ where: { Email: email } }).catch((err) => {
     console.log('Error: ', err);
   });
