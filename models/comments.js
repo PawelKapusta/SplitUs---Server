@@ -7,13 +7,13 @@ export const Comments = db.define(
   'comments',
   {
     ID: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       autoIncrement: true,
       primaryKey: true,
       allowNull: false,
     },
     BillId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: false,
       references: {
         model: 'bills',
@@ -21,7 +21,7 @@ export const Comments = db.define(
       },
     },
     UserId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: false,
       references: {
         model: 'users',

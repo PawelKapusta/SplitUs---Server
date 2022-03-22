@@ -73,7 +73,7 @@ app.get('/groups/:id', groupsRouter);
 app.post('/groups', groupsRouter);
 app.put('/groups/:id', groupsRouter);
 app.delete('/groups/:id', groupsRouter);
-app.get('/groups2', groupsRouter);
+//app.get('/groups2', groupsRouter);
 
 app.get('/bills', billsRouter);
 app.get('/bills/:id', billsRouter);

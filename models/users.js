@@ -7,7 +7,7 @@ export const Users = db.define(
   'users',
   {
     ID: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       autoIncrement: true,
       primaryKey: true,
       allowNull: false,
